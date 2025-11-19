@@ -11,7 +11,6 @@ from openai.types.eval_create_params import DataSourceConfigCustom
 
 load_dotenv()
 
-
 credential = DefaultAzureCredential()
 
 project_client = AIProjectClient(
@@ -26,19 +25,23 @@ openai_client = project_client.get_openai_client()
 conversation = openai_client.conversations.create()
 response = openai_client.responses.create(
     conversation=conversation.id,
-    input="Can you tell me about Zava's HR policies?",
-    extra_body={"agent": {"name": agent_name, "version": "9","type": "agent_reference"}},
+    input="What are HR policies?",
+    extra_body={"agent": {
+        "name": agent_name, 
+        "version":"24", 
+        "type": "agent_reference"
+    }},
 )
 print(f"Response output: {response.output_text} (id: {response.id})")
 
-# Now create evaluation for the response
+# Configure evaluation parameters
+model = "gpt-4.1"
+
 data_source_config = {
     "type": "azure_ai_source", 
     "scenario": "responses"
 }
 
-model = "gpt-4.1"
-# add your desired evaluators here
 testing_criteria = [
     {
         "type": "azure_ai_evaluator", 
@@ -51,11 +54,12 @@ testing_criteria = [
         "name": "groundedness", 
         "evaluator_name": "builtin.groundedness",
         "initialization_parameters": {"deployment_name": f"{model}"},
-    }
+    },
 ]
 
+# Run evaluation
 eval_object = openai_client.evals.create(
-    name="Agent Response Evaluation",
+    name="BasicSupportAgent Evaluation",
     data_source_config=data_source_config,
     testing_criteria=testing_criteria,
 )
@@ -69,7 +73,9 @@ data_source = {
         "source": {
             "type": "file_content",
             "content": [{
-                "item": { "resp_id": response.id }
+                "item": { 
+                    "resp_id": response.id,
+                }
             }]
         },
     },
