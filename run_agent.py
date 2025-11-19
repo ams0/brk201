@@ -17,7 +17,7 @@ conversation = openai_client.conversations.create()
 # Reference the agent to get a response
 response = openai_client.responses.create(
     conversation=conversation.id, # ADDED: reference conversation id
-    input=[{"role": "user", "content": "Tell me about your branding guidelines"}],
+    input=[{"role": "user", "content": "Tell me about HR policies"}],
     extra_body={"agent": {"name": agent_name, "type": "agent_reference"}},
     stream=True
 )

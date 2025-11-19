@@ -26,46 +26,15 @@ openai_client = project_client.get_openai_client()
 conversation = openai_client.conversations.create()
 response = openai_client.responses.create(
     conversation=conversation.id,
-    input="Can you tell me about Zava's branding guidelines?",
-    extra_body={"agent": {"name": agent_name, "type": "agent_reference"}},
+    input="Can you tell me about Zava's HR policies?",
+    extra_body={"agent": {"name": agent_name, "version": "9","type": "agent_reference"}},
 )
 print(f"Response output: {response.output_text} (id: {response.id})")
 
 # Now create evaluation for the response
-data_source_config = {"type": "azure_ai_source", "scenario": "responses"}
-data_source_config = DataSourceConfigCustom(
-    type="custom",
-    item_schema={
-        "type": "object", 
-        "properties": {
-            "query": {"type": "string"}
-        }, 
-        "required": ["query"]
-    },
-    include_sample_schema=True,
-)
-
-# Define data source for evaluation run
-data_source = {
-    "type": "azure_ai_target_completions",
-    "source": {
-        "type": "file_content",
-        "content": [
-            {"item": {"query": "Tell me about Zava's branding guidelines?"}},
-            {"item": {"query": "What colors do Zava's shirts come in"}},
-        ],
-    },
-    "input_messages": {
-        "type": "template",
-        "template": [
-            {"type": "message", "role": "user", "content": {"type": "input_text", "text": "{{item.query}}"}}
-        ],
-    },
-    "target": {
-        "type": "azure_ai_agent",
-        "name": agent_name,
-        #"version": agent.version,  # Version is optional. Defaults to latest version if not specified
-    },
+data_source_config = {
+    "type": "azure_ai_source", 
+    "scenario": "responses"
 }
 
 model = "gpt-4.1"
@@ -125,12 +94,5 @@ if response_eval_run.status == "completed":
     print("\n✓ Evaluation run completed successfully!")
     print(f"Result Counts: {response_eval_run.result_counts}")
     print(f"Eval Run Report URL: {response_eval_run.report_url}")
-    output_items = list(
-        openai_client.evals.runs.output_items.list(run_id=response_eval_run.id, eval_id=eval_object.id)
-    )
-    print(f"\nOUTPUT ITEMS (Total: {len(output_items)})")
-    print(f"{'-'*60}")
-    pprint(output_items)
-    print(f"{'-'*60}")
 else:
     print("\n✗ Evaluation run failed.")
