@@ -1,1 +1,1 @@
-Welcome everyone to Ignite 2025! 🎉 Agents are amazing and so are you! 🫶
+Welcome everyone to Impact Era! 🎉 Agents are amazing and so are you! 🫶
